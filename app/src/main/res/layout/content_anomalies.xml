@@ -9,10 +9,10 @@
     tools:context="nos.elfak.rs.sensewatcher.AnomaliesActivity"
     tools:showIn="@layout/activity_anomalies">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/anomaly_table"
+        ></TableLayout>
 
 </android.support.v4.widget.NestedScrollView>

@@ -19,10 +19,16 @@ public class Communication
 {
     private DatagramSocket socket;
     private Thread receivingThread;
+    private AnomaliesActivity activity;
     private static Communication communication;
     private Communication()
     {
 
+    }
+
+    public void setActivity(AnomaliesActivity activity)
+    {
+        this.activity = activity;
     }
 
     public static Communication getCommunication()
@@ -48,26 +54,29 @@ public class Communication
         }
     }
 
-    public String listenForAnomalies()
+    public AnomalyData listenForAnomalies()
     {
         String info = "";
-        if (receivingThread != null)
+        if (receivingThread == null)
             receivingThread = Thread.currentThread();
         byte[] receiveData = new byte[1024];
+        AnomalyData data = null;
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         try
         {
             if (socket == null)
             {
-                socket = new DatagramSocket();
+                socket = new DatagramSocket(Constants.port);
                 socket.setBroadcast(true);
             }
-
+            receivePacket.setPort(Constants.port);
             socket.receive(receivePacket);
             Constants.ip_address = receivePacket.getAddress().getHostAddress();
             info = (new String(receivePacket.getData())).trim();
             Gson gson = new Gson();
-           // datas = gson.fromJson(info, new TypeToken<List<ReceiveData>>(){}.getType());
+            data = gson.fromJson(info, AnomalyData.class);
+            if(activity != null)
+                activity.RefreshTable();
         } catch (SocketException e)
         {
             e.printStackTrace();
@@ -81,31 +90,28 @@ public class Communication
             e.printStackTrace();
             closeSocket();
         }
-        return info;
+        return data;
     }
-
 
     public ArrayList<ReceiveData> getData(RequestSenseData request)
     {
         String info = request.toString();
         DatagramPacket packet;
+        DatagramSocket sock = null;
         byte [] sendData = info.getBytes();
         byte[] receiveData = new byte[102400];
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         ArrayList<ReceiveData> datas = null;
         try
         {
-            if (socket == null)
-            {
-                socket = new DatagramSocket();
-                socket.setBroadcast(true);
-            }
+            sock = new DatagramSocket();
+            sock.setBroadcast(true);
 
             packet = new DatagramPacket(sendData,sendData.length);
             packet.setAddress(InetAddress.getByName(Constants.ip_address));
-            packet.setPort(Integer.parseInt(Constants.port));
-            socket.send(packet);
-            socket.receive(receivePacket);
+            packet.setPort(Constants.sendPort);
+            sock.send(packet);
+            sock.receive(receivePacket);
             Constants.ip_address = receivePacket.getAddress().getHostAddress();
             info = (new String(receivePacket.getData())).trim();
             Gson gson = new Gson();
@@ -113,15 +119,22 @@ public class Communication
         } catch (SocketException e)
         {
             e.printStackTrace();
-            closeSocket();
+            //closeSocket();
         } catch (UnknownHostException e)
         {
             e.printStackTrace();
-            closeSocket();
+            //closeSocket();
         } catch (IOException e)
         {
             e.printStackTrace();
-            closeSocket();
+           // closeSocket();
+        } finally
+        {
+            if(sock != null)
+            {
+                sock.disconnect();
+                sock.close();
+            }
         }
         return datas;
     }

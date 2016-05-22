@@ -6,7 +6,8 @@ package nos.elfak.rs.sensewatcher;
 public class Constants
 {
     public static String ip_address = "255.255.255.255";
-    public static String port = "3333";
+    public static int sendPort = 3333;
+    public static int port = 6565;
     public static final String accelerometer = "accelerometer";
     public static final String gyroscope = "gyroscope";
     public static final String magnetometer = "magnetometer";

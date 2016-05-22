@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
 {
     Communication communication;
-    public static ArrayList<String> anomalies = new ArrayList<>();
+    public static ArrayList<AnomalyData> anomalies = new ArrayList<>();
     boolean listening = false;
 
     @Override
@@ -31,12 +31,12 @@ public class MainActivity extends AppCompatActivity
     {
         Intent i = new Intent(this, ResultsActivity.class);
         startActivity(i);
-
     }
 
     public void startListening(View view)
     {
-        if(!listening)
+        listening = !listening;
+        if(listening)
         {
             ((Button) view).setText(Constants.stopLabel);
             new Thread(new Runnable()
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
-                    while (true)
+                    while (listening)
                     {
                         anomalies.add(communication.listenForAnomalies());
                     }
@@ -56,10 +56,11 @@ public class MainActivity extends AppCompatActivity
             anomalies.clear();
             ((Button) view).setText(Constants.listenLabel);
         }
-        listening = !listening;
     }
 
     public void seeAnomalies(View view)
     {
+        Intent i = new Intent(this, AnomaliesActivity.class);
+        startActivity(i);
     }
 }
