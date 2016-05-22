@@ -10,10 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="nos.elfak.rs.sensewatcher.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,4 +17,22 @@
         android:id="@+id/results"
         android:onClick="seeResults"
         />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Listen for anomalies"
+        android:id="@+id/anomalies"
+        android:onClick="startListening"
+        android:layout_below="@+id/results"
+        android:layout_alignParentStart="true"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="See Anomalies"
+        android:id="@+id/button2"
+        android:onClick="seeAnomalies"
+        android:layout_below="@+id/anomalies"
+        android:layout_alignParentStart="true"/>
 </RelativeLayout>

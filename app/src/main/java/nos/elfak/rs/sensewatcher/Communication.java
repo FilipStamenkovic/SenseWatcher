@@ -1,6 +1,7 @@
 package nos.elfak.rs.sensewatcher;
 
-import android.provider.SyncStateContract;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,22 +18,17 @@ import java.util.List;
 public class Communication
 {
     private DatagramSocket socket;
-    private MainActivity activity;
-    // private int receivePort;
     private Thread receivingThread;
-    // DatagramPacket receivePacket;
     private static Communication communication;
-    private boolean receiving = false;
-    private boolean poslaoSubscribe = false;
-    private Communication(MainActivity activity)
+    private Communication()
     {
-        this.activity = activity;
+
     }
 
-    public static Communication getCommunication(MainActivity activity)
+    public static Communication getCommunication()
     {
         if(communication == null)
-            communication = new Communication(activity);
+            communication = new Communication();
 
         return communication;
     }
@@ -44,80 +41,51 @@ public class Communication
             socket.close();
             socket = null;
         }
-        receiving = false;
-        poslaoSubscribe = false;
         if(receivingThread != null && receivingThread.isAlive())
         {
             receivingThread.interrupt();
             receivingThread = null;
         }
-
-      /*  if(receivingSocket != null)
-        {
-            receivingSocket.disconnect();
-            receivingSocket.close();
-            receivingSocket = null;
-        }*/
-
     }
 
-
-    public void sendData(ArrayList<SensorData> datas, boolean subscribing, String sensor)
+    public String listenForAnomalies()
     {
+        String info = "";
+        if (receivingThread != null)
+            receivingThread = Thread.currentThread();
+        byte[] receiveData = new byte[1024];
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         try
         {
-            String info;
-            DatagramPacket packet;
-            byte [] sendData;
             if (socket == null)
             {
                 socket = new DatagramSocket();
                 socket.setBroadcast(true);
-            }if(!subscribing)
-        {
-            for (int i = 0; i < datas.size(); i++)
-            {
-                if(sensor != null && !datas.get(i).getSensor().contentEquals(sensor))
-                    continue;
-                info = datas.get(i).toString();// + "\n";
-                sendData = info.getBytes();
-
-                packet = new DatagramPacket(sendData, sendData.length);
-
-                packet.setAddress(InetAddress.getByName(Constants.ip_address));
-                packet.setPort(Integer.parseInt(Constants.port));
-                socket.send(packet);
             }
-        }else
+
+            socket.receive(receivePacket);
+            Constants.ip_address = receivePacket.getAddress().getHostAddress();
+            info = (new String(receivePacket.getData())).trim();
+            Gson gson = new Gson();
+           // datas = gson.fromJson(info, new TypeToken<List<ReceiveData>>(){}.getType());
+        } catch (SocketException e)
         {
-            if(poslaoSubscribe)
-                return;
-            info = "subscribe\n";
-            for(int i = 0; i < datas.size(); i++)
-                info += datas.get(i).getSensor() + "\n";
-
-
-            sendData = info.getBytes();
-
-            packet = new DatagramPacket(sendData,sendData.length);
-            packet.setAddress(InetAddress.getByName(Constants.ip_address));
-            packet.setPort(Integer.parseInt(Constants.port));
-            socket.send(packet);
-            poslaoSubscribe = true;
-        }
-            // closeSocket();
+            e.printStackTrace();
+            closeSocket();
+        } catch (UnknownHostException e)
+        {
+            e.printStackTrace();
+            closeSocket();
         } catch (IOException e)
         {
             e.printStackTrace();
             closeSocket();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            closeSocket();
         }
+        return info;
     }
 
-    public ArrayList<ReceiveData> getData(Request request)
+
+    public ArrayList<ReceiveData> getData(RequestSenseData request)
     {
         String info = request.toString();
         DatagramPacket packet;
@@ -134,10 +102,11 @@ public class Communication
             }
 
             packet = new DatagramPacket(sendData,sendData.length);
-            packet.setAddress(InetAddress.getByName(SyncStateContract.Constants.ip_address));
+            packet.setAddress(InetAddress.getByName(Constants.ip_address));
             packet.setPort(Integer.parseInt(Constants.port));
             socket.send(packet);
             socket.receive(receivePacket);
+            Constants.ip_address = receivePacket.getAddress().getHostAddress();
             info = (new String(receivePacket.getData())).trim();
             Gson gson = new Gson();
             datas = gson.fromJson(info, new TypeToken<List<ReceiveData>>(){}.getType());

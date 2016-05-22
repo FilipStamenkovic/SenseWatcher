@@ -14,7 +14,7 @@ public class ReceiveData
     protected String sensor;
     protected long id;
     protected String type = "download";
-    public String timestamp;
+    protected String timestamp;
 
     public ReceiveData(){}
 
@@ -86,6 +86,16 @@ public class ReceiveData
     public void setId(long id)
     {
         this.id = id;
+    }
+
+    public String getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp)
+    {
+        this.timestamp = timestamp;
     }
 
     @Override

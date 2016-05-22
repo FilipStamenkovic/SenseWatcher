@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,7 +20,6 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
 {
     Communication communication;
     int pageSize = -1;
-    int offset = 0;
     ArrayList<String> sensorTypes = new ArrayList<>();
     ArrayList<ReceiveData> datas = new ArrayList<>();
     ArrayList<ReceiveData> receivedData;
@@ -38,11 +36,12 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
 
         addRowToTable(null);
         NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.scroller);
-        nestedScrollView.setOnScrollChangeListener(this);
+        if(nestedScrollView != null)
+            nestedScrollView.setOnScrollChangeListener(this);
 
         if(communication == null)
         {
-            communication = Communication.getCommunication(null);
+            communication = Communication.getCommunication();
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -139,7 +138,7 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
             view = (TextView) row.findViewById(R.id.sens_z);
             view.setText(String.format("%.2f", data.getZ()));
             view = (TextView) row.findViewById(R.id.sens_ts);
-            view.setText(data.timestamp);
+            view.setText(data.getTimestamp());
         } else
         {
             table.removeAllViews();
@@ -149,7 +148,7 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
 
     private synchronized void getData()
     {
-        Request request = new Request(pageSize, datas.size(), sensorTypes);
+        RequestSenseData request = new RequestSenseData(pageSize, datas.size(), sensorTypes);
         receivedData = communication.getData(request);
         if (receivedData == null || receivedData.size() == 0)
             hasMoreData = false;
