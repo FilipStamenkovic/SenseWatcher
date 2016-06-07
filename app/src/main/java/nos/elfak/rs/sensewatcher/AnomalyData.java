@@ -9,11 +9,13 @@ import com.google.gson.GsonBuilder;
 public class AnomalyData
 {
     private String description;
-    private ReceiveData lastReading;
+    private String lastReading;
+    private transient ReceiveData receiveData;
+    private transient SubscribeData subscribeData;
 
     public AnomalyData(){}
 
-    public AnomalyData(String description, ReceiveData lastReading)
+    public AnomalyData(String description, String lastReading)
     {
         this.description = description;
         this.lastReading = lastReading;
@@ -29,14 +31,51 @@ public class AnomalyData
         this.description = description;
     }
 
-    public ReceiveData getLastReading()
+    public String getLastReading()
     {
         return lastReading;
     }
 
-    public void setLastReading(ReceiveData lastReading)
+    public void setLastReading(String lastReading)
     {
         this.lastReading = lastReading;
+    }
+
+    public ReceiveData getReceiveData()
+    {
+        return receiveData;
+    }
+
+    public void setReceiveData(ReceiveData receiveData)
+    {
+        this.receiveData = receiveData;
+    }
+
+    public SubscribeData getSubscribeData()
+    {
+        return subscribeData;
+    }
+
+    public void setSubscribeData(SubscribeData subscribeData)
+    {
+        this.subscribeData = subscribeData;
+    }
+
+    public void setTransientObjects()
+    {
+        receiveData = null;
+        subscribeData = null;
+        Gson gson = new GsonBuilder().create();
+
+        try
+        {
+            receiveData = gson.fromJson(lastReading, ReceiveData.class);
+        }
+        catch (Exception ex)
+        {
+            receiveData = null;
+            subscribeData = gson.fromJson(lastReading, SubscribeData.class);
+        }
     }
 
     @Override

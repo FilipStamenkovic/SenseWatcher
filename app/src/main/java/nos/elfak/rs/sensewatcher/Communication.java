@@ -75,6 +75,8 @@ public class Communication
             info = (new String(receivePacket.getData())).trim();
             Gson gson = new Gson();
             data = gson.fromJson(info, AnomalyData.class);
+            if (data != null)
+                data.setTransientObjects();
             if(activity != null)
                 activity.RefreshTable();
         } catch (SocketException e)

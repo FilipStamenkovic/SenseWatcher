@@ -63,20 +63,41 @@ public class AnomaliesActivity extends AppCompatActivity
         TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.info_row, null);
         if(anomaly != null)
         {
-            ReceiveData data = anomaly.getLastReading();
+            ReceiveData data = anomaly.getReceiveData();
             TextView view = (TextView) row.findViewById(R.id.sens_id);
-            view.setText(Long.toString(data.getId()));
-            view = (TextView) row.findViewById(R.id.sens_name);
-            view.setText(data.getSensor());
-            view = (TextView) row.findViewById(R.id.sens_x);
-            view.setText(String.format("%.2f", data.getX()));
-            view = (TextView) row.findViewById(R.id.sens_y);
-            view.setText(String.format("%.2f", data.getY()));
-            view = (TextView) row.findViewById(R.id.sens_z);
-            view.setText(String.format("%.2f", data.getZ()));
-            view = (TextView) row.findViewById(R.id.sens_ts);
-            view.setVisibility(View.GONE);
-            //view.setText(data.getTimestamp());
+            if(data != null)
+            {
+                view.setText(Long.toString(data.getId()));
+                view = (TextView) row.findViewById(R.id.sens_name);
+                view.setText(data.getSensor());
+                view = (TextView) row.findViewById(R.id.sens_x);
+                view.setText(String.format("%.2f", data.getX()));
+                view = (TextView) row.findViewById(R.id.sens_y);
+                view.setText(String.format("%.2f", data.getY()));
+                view = (TextView) row.findViewById(R.id.sens_z);
+                view.setText(String.format("%.2f", data.getZ()));
+                view = (TextView) row.findViewById(R.id.sens_ts);
+                view.setVisibility(View.GONE);
+                //view.setText(data.getTimestamp());
+            } else
+            {
+                SubscribeData subscribeData = anomaly.getSubscribeData();
+
+                view = (TextView) row.findViewById(R.id.sens_id);
+                view.setText(Long.toString(subscribeData.getId()));
+                view = (TextView) row.findViewById(R.id.sens_name);
+                view.setText(subscribeData.convertSensorsToString());
+                view = (TextView) row.findViewById(R.id.sens_x);
+                view.setText(String.format("%.2f", subscribeData.getType()));
+                view = (TextView) row.findViewById(R.id.sens_y);
+                view.setVisibility(View.GONE);
+                //view.setText(String.format("%.2f", data.getY()));
+                view = (TextView) row.findViewById(R.id.sens_z);
+                view.setVisibility(View.GONE);
+                view = (TextView) row.findViewById(R.id.sens_ts);
+                view.setVisibility(View.GONE);
+                //view.setText(data.getTimestamp());
+            }
             view = (TextView) row.findViewById(R.id.sens_desc);
             view.setText(anomaly.getDescription());
             view.setVisibility(View.VISIBLE);
