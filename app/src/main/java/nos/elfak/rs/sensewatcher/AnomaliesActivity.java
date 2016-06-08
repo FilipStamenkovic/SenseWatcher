@@ -63,7 +63,7 @@ public class AnomaliesActivity extends AppCompatActivity
         TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.info_row, null);
         if(anomaly != null)
         {
-            ReceiveData data = anomaly.getReceiveData();
+            ReceiveData data = anomaly.getLastReading();
             TextView view = (TextView) row.findViewById(R.id.sens_id);
             if(data != null)
             {
@@ -81,14 +81,15 @@ public class AnomaliesActivity extends AppCompatActivity
                 //view.setText(data.getTimestamp());
             } else
             {
-                SubscribeData subscribeData = anomaly.getSubscribeData();
+                SubscribeData subscribeData = anomaly.getLastSubscribe();
 
                 view = (TextView) row.findViewById(R.id.sens_id);
                 view.setText(Long.toString(subscribeData.getId()));
                 view = (TextView) row.findViewById(R.id.sens_name);
                 view.setText(subscribeData.convertSensorsToString());
                 view = (TextView) row.findViewById(R.id.sens_x);
-                view.setText(String.format("%.2f", subscribeData.getType()));
+                view.setVisibility(View.GONE);
+                //view.setText(subscribeData.getType());
                 view = (TextView) row.findViewById(R.id.sens_y);
                 view.setVisibility(View.GONE);
                 //view.setText(String.format("%.2f", data.getY()));
