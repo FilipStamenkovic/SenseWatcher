@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,30 +17,23 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class ResultsActivity extends AppCompatActivity implements NestedScrollView.OnScrollChangeListener
+public class RequestAnomalies extends AppCompatActivity implements NestedScrollView.OnScrollChangeListener
 {
     Communication communication;
     int pageSize = -1;
-    ArrayList<String> sensorTypes = new ArrayList<>();
-    ArrayList<ReceiveData> datas = new ArrayList<>();
-    ArrayList<ReceiveData> receivedData;
+    ArrayList<AnomalyData> datas = new ArrayList<>();
+    ArrayList<AnomalyData> receivedData;
     View picker;
-    Thread t;
     boolean hasMoreData = true;
+    Thread t;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_results);
+        setContentView(R.layout.activity_request_anomalies);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        addRowToTable(null);
-        NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.scroller);
-        if(nestedScrollView != null)
-            nestedScrollView.setOnScrollChangeListener(this);
-
         if(communication == null)
         {
             communication = Communication.getCommunication();
@@ -53,7 +47,7 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
                 @Override
                 public void onClick(View view)
                 {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ResultsActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RequestAnomalies.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                     builder.setMessage("Message").setTitle("Choose page size");
 
                     builder.setView(createView());
@@ -62,25 +56,8 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            sensorTypes.clear();
                             addRowToTable(null);
                             pageSize = ((NumberPicker) picker.findViewById(R.id.picker)).getValue();
-                            if (((CheckBox) picker.findViewById(R.id.res_acc)).isChecked())
-                            {
-                                sensorTypes.add(Constants.accelerometer);
-                            }
-                            if (((CheckBox) picker.findViewById(R.id.res_mag)).isChecked())
-                            {
-                                sensorTypes.add(Constants.magnetometer);
-                            }
-                            if (((CheckBox) picker.findViewById(R.id.res_gyr)).isChecked())
-                            {
-                                sensorTypes.add(Constants.gyroscope);
-                            }
-                            if (((CheckBox) picker.findViewById(R.id.res_gps)).isChecked())
-                            {
-                                sensorTypes.add(Constants.gps);
-                            }
                             t = new Thread(new Runnable()
                             {
                                 @Override
@@ -109,8 +86,60 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
                     dialog.show();
                 }
             });
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void addRowToTable(AnomalyData anomaly)
+    {
+        TableLayout table = (TableLayout) findViewById(R.id.table);
+        TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.info_row, null);
+        if(anomaly != null)
+        {
+            ReceiveData data = anomaly.getLastReading();
+            TextView view = (TextView) row.findViewById(R.id.sens_id);
+            if(data != null)
+            {
+                view.setText(Long.toString(data.getId()));
+                view = (TextView) row.findViewById(R.id.sens_name);
+                view.setText(data.getSensor());
+                view = (TextView) row.findViewById(R.id.sens_x);
+                view.setText(String.format("%.2f", data.getX()));
+                view = (TextView) row.findViewById(R.id.sens_y);
+                view.setText(String.format("%.2f", data.getY()));
+                view = (TextView) row.findViewById(R.id.sens_z);
+                view.setText(String.format("%.2f", data.getZ()));
+                view = (TextView) row.findViewById(R.id.sens_ts);
+                view.setVisibility(View.GONE);
+                //view.setText(data.getTimestamp());
+            } else
+            {
+                SubscribeData subscribeData = anomaly.getLastSubscribe();
+
+                view = (TextView) row.findViewById(R.id.sens_id);
+                view.setText(Long.toString(subscribeData.getId()));
+                view = (TextView) row.findViewById(R.id.sens_name);
+                view.setText(subscribeData.convertSensorsToString());
+                view = (TextView) row.findViewById(R.id.sens_x);
+                view.setVisibility(View.GONE);
+                //view.setText(subscribeData.getType());
+                view = (TextView) row.findViewById(R.id.sens_y);
+                view.setVisibility(View.GONE);
+                //view.setText(String.format("%.2f", data.getY()));
+                view = (TextView) row.findViewById(R.id.sens_z);
+                view.setVisibility(View.GONE);
+                view = (TextView) row.findViewById(R.id.sens_ts);
+                view.setVisibility(View.GONE);
+                //view.setText(data.getTimestamp());
+            }
+            view = (TextView) row.findViewById(R.id.sens_desc);
+            view.setText(anomaly.getDescription());
+            view.setVisibility(View.VISIBLE);
+        } else
+        {
+            table.removeAllViews();
+        }
+        table.addView(row);
     }
 
     private View createView()
@@ -120,38 +149,16 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
         num.setMinValue(10);
         num.setMaxValue(1000);
         num.setValue(50);
+        View v = picker.findViewById(R.id.checkboxes);
+        v.setVisibility(View.GONE);
         return picker;
-    }
-
-    private void addRowToTable(ReceiveData data)
-    {
-        TableLayout table = (TableLayout) findViewById(R.id.table);
-        TableRow row = (TableRow) getLayoutInflater().inflate(R.layout.info_row, null);
-        if(data != null)
-        {
-            TextView view = (TextView) row.findViewById(R.id.sens_id);
-            view.setText(Long.toString(data.getId()));
-            view = (TextView) row.findViewById(R.id.sens_name);
-            view.setText(data.getSensor());
-            view = (TextView) row.findViewById(R.id.sens_x);
-            view.setText(String.format("%.2f", data.getX()));
-            view = (TextView) row.findViewById(R.id.sens_y);
-            view.setText(String.format("%.2f", data.getY()));
-            view = (TextView) row.findViewById(R.id.sens_z);
-            view.setText(String.format("%.2f", data.getZ()));
-            view = (TextView) row.findViewById(R.id.sens_ts);
-            view.setText(data.getTimestamp());
-        } else
-        {
-            table.removeAllViews();
-        }
-        table.addView(row);
     }
 
     private synchronized void getData()
     {
-        RequestSenseData request = new RequestSenseData(pageSize, datas.size(), sensorTypes);
-        receivedData = communication.getData(request);
+        RequestSenseData request = new RequestSenseData(pageSize, datas.size(), null);
+        request.setType("download_anomalies");
+        receivedData = communication.getDataAnomalyData(request);
         if (receivedData == null || receivedData.size() == 0)
             hasMoreData = false;
         else
@@ -162,7 +169,7 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
                 @Override
                 public void run()
                 {
-                    for(ReceiveData data : receivedData)
+                    for(AnomalyData data : receivedData)
                         addRowToTable(data);
                 }
             });

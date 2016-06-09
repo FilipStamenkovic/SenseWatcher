@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity
         listening = !listening;
         if(listening)
         {
-            ((Button) view).setText(Constants.stopLabel);
+            Intent i = new Intent(this, AnomaliesActivity.class);
+            startActivity(i);
             new Thread(new Runnable()
             {
                 @Override
@@ -55,12 +56,13 @@ public class MainActivity extends AppCompatActivity
             communication.closeSocket();
             anomalies.clear();
             ((Button) view).setText(Constants.listenLabel);
+
         }
     }
 
     public void seeAnomalies(View view)
     {
-        Intent i = new Intent(this, AnomaliesActivity.class);
+        Intent i = new Intent(this, RequestAnomalies.class);
         startActivity(i);
     }
 }

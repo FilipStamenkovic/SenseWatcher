@@ -12,31 +12,38 @@
 
     </NumberPicker>
 
-    <CheckBox
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Accelerometer"
-        android:id="@+id/res_acc"
-        />
+        android:orientation="vertical"
+        android:id="@+id/checkboxes"
+        >
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer"
+            android:id="@+id/res_acc"
+            />
 
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Gyroscope"
-        android:id="@+id/res_gyr"
-        />
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope"
+            android:id="@+id/res_gyr"
+            />
 
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Magnetometer"
-        android:id="@+id/res_mag"
-        />
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Magnetometer"
+            android:id="@+id/res_mag"
+            />
 
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="GPS"
-        android:id="@+id/res_gps"
-        />
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GPS"
+            android:id="@+id/res_gps"
+            />
+    </LinearLayout>
 </LinearLayout>

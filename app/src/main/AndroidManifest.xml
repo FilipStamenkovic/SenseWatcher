@@ -48,6 +48,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="nos.elfak.rs.sensewatcher.MainActivity"/>
         </activity>
+        <activity
+            android:name=".RequestAnomalies"
+            android:label="@string/title_activity_request_anomalies"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="nos.elfak.rs.sensewatcher.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

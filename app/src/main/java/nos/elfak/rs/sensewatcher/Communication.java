@@ -74,6 +74,10 @@ public class Communication
             Constants.ip_address = receivePacket.getAddress().getHostAddress();
             info = (new String(receivePacket.getData())).trim();
             Gson gson = new Gson();
+            if (info.contains("\\\"type\\\":\\\"subscribe\\\""))
+            {
+                info = info.replace("lastReading", "lastSubscribe");
+            }
             data = gson.fromJson(info, AnomalyData.class);
            // if (data != null)
         //        data.setTransientObjects();
@@ -135,6 +139,52 @@ public class Communication
         {
             e.printStackTrace();
            // closeSocket();
+        } finally
+        {
+            if(sock != null)
+            {
+                sock.disconnect();
+                sock.close();
+            }
+        }
+        return datas;
+    }
+
+    public ArrayList<AnomalyData> getDataAnomalyData(RequestSenseData request)
+    {
+        String info = request.toString();
+        DatagramPacket packet;
+        DatagramSocket sock = null;
+        byte [] sendData = info.getBytes();
+        byte[] receiveData = new byte[102400];
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        ArrayList<AnomalyData> datas = null;
+        try
+        {
+            sock = new DatagramSocket();
+            sock.setBroadcast(true);
+
+            packet = new DatagramPacket(sendData,sendData.length);
+            packet.setAddress(InetAddress.getByName(Constants.ip_address));
+            packet.setPort(Constants.sendPort);
+            sock.send(packet);
+            sock.receive(receivePacket);
+            Constants.ip_address = receivePacket.getAddress().getHostAddress();
+            info = (new String(receivePacket.getData())).trim();
+            Gson gson = new Gson();
+            datas = gson.fromJson(info, new TypeToken<List<AnomalyData>>(){}.getType());
+        } catch (SocketException e)
+        {
+            e.printStackTrace();
+            //closeSocket();
+        } catch (UnknownHostException e)
+        {
+            e.printStackTrace();
+            //closeSocket();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            // closeSocket();
         } finally
         {
             if(sock != null)
