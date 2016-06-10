@@ -38,6 +38,9 @@ public class RequestAnomalies extends AppCompatActivity implements NestedScrollV
         {
             communication = Communication.getCommunication();
         }
+        NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.scroller);
+        if(nestedScrollView != null)
+            nestedScrollView.setOnScrollChangeListener(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if(fab != null)
