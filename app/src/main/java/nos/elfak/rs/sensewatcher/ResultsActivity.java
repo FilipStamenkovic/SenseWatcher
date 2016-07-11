@@ -145,6 +145,7 @@ public class ResultsActivity extends AppCompatActivity implements NestedScrollVi
         {
             table.removeAllViews();
         }
+        row.findViewById(R.id.sens_desc).setVisibility(View.GONE);
         table.addView(row);
     }
 
